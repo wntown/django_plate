@@ -1,0 +1,672 @@
+{% load static %}
+{% include "partials/mainhead.html"  %}
+<!DOCTYPE html>
+<html lang="ko">
+  <head> </head>
+
+  <body cz-shortcut-listen="true">
+    {% include "partials/switcher.html"  %}
+    {% include 'partials/headers.html' %}
+    {% include "partials/sidebar.html"  %}
+
+    <div class="main-content app-content">
+      <div class="container-fluid">
+        <!-- Page Header -->
+        <!-- Page Header Close -->
+
+        <!-- Start::row-1 -->
+        <div class="row d-flex justify-content-center">
+          <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+            <h1 class="page-title fw-semibold fs-18 mb-0"></h1>
+          </div>
+
+          <div class="col-xl-9">
+            <div class="card custom-card">
+              <div class="card-body p-0">
+                <div class="d-flex p-3 align-items-center justify-content-center">
+                  <!-- 검색창 시작 -->
+                  <form action="/slot_list/" class="align-items-center justify-content-center col-xl-12">
+                    <div class="input-group">
+                      <input type="search" class="form-control form-control-lg text-center" name="q" placeholder="Please input search keyword" />
+                      <div class="input-group-append">
+                        <button type="submit" class="btn btn-lg btn-default">
+                          <i class="bx bx-search"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                  <!-- 검색창 끝 -->
+
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% if request.user.is_staff or request.user.is_agency %}
+
+          <div class="col-xl-9 task-card">
+            <div class="card custom-card task-completed-card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table text-nowrap">
+                    <thead class="table-primary">
+                      <tr>
+                        <th scope="col">KEYWORD</th>
+                        <th scope="col">URL</th>
+                        <th scope="col">ID | NAME</th>
+                        <th scope="col">START</th>
+                        <th scope="col">END</th>
+                        <th scope="col">STATUS</th>
+                        <th scope="col">SETTINGS</th>
+                        <th scope="col">UUID</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% if data %} {% for item in data %}
+                      <tr>
+                        <th scope="row"><p class="fw-bold">{{ item.keyword }}</p></th>
+                        <td>
+                          <span class="d-inline-block text-truncate" style="max-width: 200px"><a target="_blank" href="{{ item.product_url }}">{{ item.product_url }}</a></span>
+                        </td>
+                        <td>{{ item.create_user }}</td>
+
+                        <td>{{ item.created|date:"Y-m-d h:i:s" }}</td>
+                        <td>{{ item.end_date|date:"Y-m-d H:i:s" }}</td>
+
+                        {% if item.work_yn == True %}
+                        <td><span class="btn btn-sm btn-secondary m-1">ON</span></td>
+                        {% else %}
+                        <td><span class="btn btn-sm btn-danger m-1">OFF</span></td>
+                        {% endif %}
+
+                        <td>
+                          <div class="hstack gap-2 fs-15">
+                            <button
+                              type="button"
+                              onclick="ModalJS('{{item.keyword}}', '{{item.product_url}}', '{{item.uuid}}');"
+                              class="btn btn-icon btn-sm btn-info-transparent rounded-pill k-editor"
+                              data-bs-toggle="modal"
+                              data-bs-target="#modify-keyword">
+                              <i class="ri-edit-line"></i>
+                            </button>
+
+                            <button type="button" onclick="AddKeyword('{{item.uuid}}');" class="btn btn-icon btn-sm btn-primary-transparent rounded-pill k-add-bt">
+                              <i class="ri-add-circle-fill"></i>
+                            </button>
+                            <a target="_blank" href="{% url 'slot_rank' %}?uuid={{item.uuid}}" class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i class="ri-line-chart-fill"></i></a>
+                            <a target="_blank" href="{% url 'slot_rank_old' %}?uuid={{item.uuid}}" class="btn btn-icon btn-sm btn-warning-transparent rounded-pill"
+                              ><i class="ri-line-chart-fill"></i
+                            ></a>
+                          </div>
+                        </td>
+                        <td>{{item.uuid}}</td>
+                      </tr>
+                      {% endfor %} {% endif %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% else %}
+          <div class="col-xl-9 task-card">
+            <div class="card custom-card task-completed-card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table text-nowrap">
+                    <thead class="table-primary">
+                      <tr>
+                        <th scope="col">KEYWORD</th>
+                        <th scope="col">URL</th>
+                        <th scope="col">START</th>
+                        <th scope="col">END</th>
+                        <th scope="col">STATUS</th>
+                        <th scope="col">SETTINGS</th>
+                        <th scope="col">UUID</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% if data %} {% for item in data %}
+                      <tr>
+                        <th scope="row"><p class="fw-bold">{{ item.keyword }}</p></th>
+                        <td>
+                          <span class="d-inline-block text-truncate" style="max-width: 200px"><a target="_blank" href="{{ item.product_url }}">{{ item.product_url }}</a></span>
+                        </td>
+                        <td>{{ item.created|date:"Y-m-d h:i:s" }}</td>
+                        <td>{{ item.end_date|date:"Y-m-d H:i:s" }}</td>
+
+                        {% if item.work_yn == True %}
+                        <td><span class="btn btn-sm btn-secondary m-1">ON</span></td>
+                        {% else %}
+                        <td><span class="btn btn-sm btn-danger m-1">OFF</span></td>
+                        {% endif %}
+
+                        <td>
+                          <div class="hstack gap-2 fs-15">
+                            <a
+                              href="javascript:ModalJS('{{item.keyword}}', '{{item.product_url}}', '{{item.uuid}}');"
+                              class="btn btn-icon btn-sm btn-info-transparent rounded-pill k-editor"
+                              data-bs-toggle="modal"
+                              data-bs-target="#modify-keyword"
+                              ><i class="ri-edit-line"></i
+                            ></a>
+                            <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-primary-transparent rounded-pill k-add-bt"><i class="ri-add-circle-fill"></i></a>
+                            <a target="_blank" href="{% url 'slot_rank' %}?uuid={{item.uuid}}" class="btn btn-icon btn-sm btn-success-transparent rounded-pill"><i class="ri-line-chart-fill"></i></a>
+                            <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-warning-transparent rounded-pill"><i class="ri-line-chart-fill"></i></a>
+                          </div>
+                        </td>
+                        <td>{{item.uuid}}</td>
+                      </tr>
+                      {% endfor %} {% endif %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Pagination Start -->
+          <div class="d-flex p-3 align-items-center justify-content-center">
+            <div class="col-xl-9">
+              <nav aria-label="Page navigation" class="pagination-style-1">
+                <ul class="pagination mb-0 align-items-center justify-content-center">
+                  <li class="page-item">
+                    <a class="page-link" href="?page=1&q={{ search }}">
+                      <i class="las la-angle-double-left align-middle"></i>
+                    </a>
+                  </li>
+
+                  {% if data.has_previous %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{data.previous_page_number}}&q={{ search }}">이전</a>
+                  </li>
+                  {% endif %} {% for page_number in data.paginator.page_range %} {% if page_number >= data.number|add:-5 and page_number <= data.number|add:5 %} {% if page_number == data.number %}
+                  <li class="page-item" aria-current="page">
+                    <a class="page-link active" href="?page={{ page_number }}&q={{ search }}">{{ page_number }}</a>
+                  </li>
+                  {% else %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ page_number }}&q={{ search }}">{{ page_number }}</a>
+                  </li>
+                  {% endif %} {% endif %} {% endfor %} {% if data.has_next %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{data.next_page_number}}&q={{ search }}">다음</a>
+                  </li>
+                  {% endif %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{data.paginator.num_pages}}&q={{ search }}"><i class="las la-angle-double-right align-middle"></i></a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+
+          <!-- Pagination END -->
+
+          <!-- MODAL START -->
+          <!-- MODIFY KEYWORD START -->
+          <div class="modal fade" id="modify-keyword" tabindex="-1" aria-labelledby="modify-keyword" data-bs-keyboard="false" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+              <div class="modal-content">
+                <div class="modal-body">
+                  <form method="post" action="{%url 'slot_edit_api' %}" id="edit_keyword">
+                    {% csrf_token %}
+                    <div class="card-body p-5">
+                      <p class="h5 fw-semibold mb-2 text-center">수정</p>
+                      <p class="mb-4 text-muted op-7 fw-normal text-center"></p>
+                      <div class="row gy-3">
+                        <div class="col-xl-12">
+                          <label for="signin-username" class="form-label text-default">Keyword</label>
+                          <input type="text" class="form-control form-control-lg" name="keyword" id="signin-keyword" placeholder="키워드를 입력 해주세요" />
+                        </div>
+
+                        <div class="col-xl-12">
+                          <label for="signin-url" class="form-label text-default d-block">URL</label>
+                          <input type="text" class="form-control form-control-lg" name="product_url" id="signin-url" placeholder="URL을 입력 해주세요" />
+                        </div>
+
+                        <div class="col-xl-12">
+                          <label for="signin-url" class="form-label text-default d-block">UUID</label>
+                          <input type="text" class="form-control form-control-lg" name="uuid" id="signin-uuid" readonly="readonly" />
+                        </div>
+
+                        <div class="col-xl-12 d-grid mt-2"></div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" id="save-bt">저장</button>
+                  <button type="button" class="btn btn-secondary k-editor-cancel" data-bs-dismiss="modal">취소</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- MODIFY KEYWORD END -->
+          <!-- MODAL END -->
+        </div>
+        <!--End::row-1 -->
+      </div>
+    </div>
+    <!-- End::app-content -->
+
+    <!-- Footer Start -->
+    <script src="{% static 'libs/@popperjs/core/umd/popper.min.js' %} "></script>
+    <script src="{% static 'libs/bootstrap/js/bootstrap.bundle.min.js' %} "></script>
+    <script src="{% static 'js/defaultmenu.min.js' %} "></script>
+    <script src="{% static 'libs/node-waves/waves.min.js' %} "></script>
+    <script src="{% static 'js/sticky.js' %} "></script>
+    <script src="{% static 'libs/simplebar/simplebar.min.js' %} "></script>
+    <script src="{% static 'js/simplebar.js' %} "></script>
+    <script src="{% static 'libs/@simonwep/pickr/pickr.es5.min.js' %} "></script>
+    <script src="{% static 'libs/jsvectormap/js/jsvectormap.min.js' %} "></script>
+    <script src="{% static 'libs/jsvectormap/maps/world-merc.js' %} "></script>
+    <script src="{% static 'libs/apexcharts/apexcharts.min.js' %} "></script>
+    <script src="{% static 'libs/chart.js/chart.min.js' %} "></script>
+    <script src="{% static 'js/crm-dashboard.js' %} "></script>
+    <script src="{% static 'js/custom-switcher.min.js' %} "></script>
+    <!-- Custom JS -->
+    <script src="{% static 'js/custom.js' %} "></script>
+
+    <footer class="footer mt-auto py-3 bg-white text-center">
+      <div class="container">
+        <span class="text-muted">
+          Copyright © <span id="year">2021</span> <a href="javascript:void(0);" class="text-dark fw-semibold">DDUDA</a>. Designed with <span class="bi bi-heart-fill text-danger"></span> by
+          <a href="javascript:void(0);">
+            <span class="fw-semibold text-primary text-decoration-underline">K</span>
+          </a>
+          All rights reserved
+        </span>
+      </div>
+    </footer>
+    <!-- Footer End -->
+
+    <div class="scrollToTop" style="display: none">
+      <span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>
+    </div>
+    <div id="responsive-overlay" class=""></div>
+
+    <div class="pcr-app" data-theme="nano" aria-label="color picker dialog" role="window" style="left: 0px; top: 8px">
+      <div class="pcr-selection">
+        <div class="pcr-color-preview">
+          <button type="button" class="pcr-last-color" aria-label="use previous color" style="--pcr-color: rgba(132, 90, 223, 1)"></button>
+          <div class="pcr-current-color" style="--pcr-color: rgba(132, 90, 223, 1)"></div>
+        </div>
+
+        <div class="pcr-color-palette">
+          <div class="pcr-picker" style="left: calc(59.6413% - 9px); top: calc(12.549% - 9px); background: rgb(132, 90, 223)"></div>
+          <div
+            class="pcr-palette"
+            tabindex="0"
+            aria-label="color selection area"
+            role="listbox"
+            style="background: linear-gradient(to top, rgb(0, 0, 0), transparent), linear-gradient(to left, rgb(81, 0, 255), rgb(255, 255, 255))"></div>
+        </div>
+
+        <div class="pcr-color-chooser">
+          <div class="pcr-picker" style="left: calc(71.9298% - 9px); background-color: rgb(81, 0, 255)"></div>
+          <div class="pcr-hue pcr-slider" tabindex="0" aria-label="hue selection slider" role="slider"></div>
+        </div>
+
+        <div class="pcr-color-opacity" style="display: none" hidden="">
+          <div class="pcr-picker"></div>
+          <div class="pcr-opacity pcr-slider" tabindex="0" aria-label="selection slider" role="slider"></div>
+        </div>
+      </div>
+
+      <div class="pcr-swatches"></div>
+
+      <div class="pcr-interaction">
+        <input class="pcr-result" type="text" spellcheck="false" aria-label="color input field" />
+
+        <input class="pcr-type" data-type="HEXA" value="HEXA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type active" data-type="RGBA" value="RGBA" type="button" />
+        <input class="pcr-type" data-type="HSLA" value="HSLA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type" data-type="HSVA" value="HSVA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type" data-type="CMYK" value="CMYK" type="button" style="display: none" hidden="" />
+
+        <input class="pcr-save" value="Save" type="button" style="display: none" hidden="" aria-label="save and close" />
+        <input class="pcr-cancel" value="Cancel" type="button" style="display: none" hidden="" aria-label="cancel and close" />
+        <input class="pcr-clear" value="Clear" type="button" style="display: none" hidden="" aria-label="clear and close" />
+      </div>
+    </div>
+    <div class="pcr-app" data-theme="nano" aria-label="color picker dialog" role="window" style="left: 0px; top: 8px">
+      <div class="pcr-selection">
+        <div class="pcr-color-preview">
+          <button type="button" class="pcr-last-color" aria-label="use previous color" style="--pcr-color: rgba(132, 90, 223, 1)"></button>
+          <div class="pcr-current-color" style="--pcr-color: rgba(132, 90, 223, 1)"></div>
+        </div>
+
+        <div class="pcr-color-palette">
+          <div class="pcr-picker" style="left: calc(59.6413% - 9px); top: calc(12.549% - 9px); background: rgb(132, 90, 223)"></div>
+          <div
+            class="pcr-palette"
+            tabindex="0"
+            aria-label="color selection area"
+            role="listbox"
+            style="background: linear-gradient(to top, rgb(0, 0, 0), transparent), linear-gradient(to left, rgb(81, 0, 255), rgb(255, 255, 255))"></div>
+        </div>
+
+        <div class="pcr-color-chooser">
+          <div class="pcr-picker" style="left: calc(71.9298% - 9px); background-color: rgb(81, 0, 255)"></div>
+          <div class="pcr-hue pcr-slider" tabindex="0" aria-label="hue selection slider" role="slider"></div>
+        </div>
+
+        <div class="pcr-color-opacity" style="display: none" hidden="">
+          <div class="pcr-picker"></div>
+          <div class="pcr-opacity pcr-slider" tabindex="0" aria-label="selection slider" role="slider"></div>
+        </div>
+      </div>
+
+      <div class="pcr-swatches"></div>
+
+      <div class="pcr-interaction">
+        <input class="pcr-result" type="text" spellcheck="false" aria-label="color input field" />
+
+        <input class="pcr-type" data-type="HEXA" value="HEXA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type active" data-type="RGBA" value="RGBA" type="button" />
+        <input class="pcr-type" data-type="HSLA" value="HSLA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type" data-type="HSVA" value="HSVA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type" data-type="CMYK" value="CMYK" type="button" style="display: none" hidden="" />
+
+        <input class="pcr-save" value="Save" type="button" style="display: none" hidden="" aria-label="save and close" />
+        <input class="pcr-cancel" value="Cancel" type="button" style="display: none" hidden="" aria-label="cancel and close" />
+        <input class="pcr-clear" value="Clear" type="button" style="display: none" hidden="" aria-label="clear and close" />
+      </div>
+    </div>
+    <div class="pcr-app" data-theme="nano" aria-label="color picker dialog" role="window" style="left: 0px; top: 8px">
+      <div class="pcr-selection">
+        <div class="pcr-color-preview">
+          <button type="button" class="pcr-last-color" aria-label="use previous color" style="--pcr-color: rgba(132, 90, 223, 1)"></button>
+          <div class="pcr-current-color" style="--pcr-color: rgba(132, 90, 223, 1)"></div>
+        </div>
+
+        <div class="pcr-color-palette">
+          <div class="pcr-picker" style="left: calc(59.6413% - 9px); top: calc(12.549% - 9px); background: rgb(132, 90, 223)"></div>
+          <div
+            class="pcr-palette"
+            tabindex="0"
+            aria-label="color selection area"
+            role="listbox"
+            style="background: linear-gradient(to top, rgb(0, 0, 0), transparent), linear-gradient(to left, rgb(81, 0, 255), rgb(255, 255, 255))"></div>
+        </div>
+
+        <div class="pcr-color-chooser">
+          <div class="pcr-picker" style="left: calc(71.9298% - 9px); background-color: rgb(81, 0, 255)"></div>
+          <div class="pcr-hue pcr-slider" tabindex="0" aria-label="hue selection slider" role="slider"></div>
+        </div>
+
+        <div class="pcr-color-opacity" style="display: none" hidden="">
+          <div class="pcr-picker"></div>
+          <div class="pcr-opacity pcr-slider" tabindex="0" aria-label="selection slider" role="slider"></div>
+        </div>
+      </div>
+
+      <div class="pcr-swatches"></div>
+
+      <div class="pcr-interaction">
+        <input class="pcr-result" type="text" spellcheck="false" aria-label="color input field" />
+
+        <input class="pcr-type" data-type="HEXA" value="HEXA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type active" data-type="RGBA" value="RGBA" type="button" />
+        <input class="pcr-type" data-type="HSLA" value="HSLA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type" data-type="HSVA" value="HSVA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type" data-type="CMYK" value="CMYK" type="button" style="display: none" hidden="" />
+
+        <input class="pcr-save" value="Save" type="button" style="display: none" hidden="" aria-label="save and close" />
+        <input class="pcr-cancel" value="Cancel" type="button" style="display: none" hidden="" aria-label="cancel and close" />
+        <input class="pcr-clear" value="Clear" type="button" style="display: none" hidden="" aria-label="clear and close" />
+      </div>
+    </div>
+    <div class="pcr-app" data-theme="nano" aria-label="color picker dialog" role="window" style="left: 0px; top: 8px">
+      <div class="pcr-selection">
+        <div class="pcr-color-preview">
+          <button type="button" class="pcr-last-color" aria-label="use previous color" style="--pcr-color: rgba(132, 90, 223, 1)"></button>
+          <div class="pcr-current-color" style="--pcr-color: rgba(132, 90, 223, 1)"></div>
+        </div>
+
+        <div class="pcr-color-palette">
+          <div class="pcr-picker" style="left: calc(59.6413% - 9px); top: calc(12.549% - 9px); background: rgb(132, 90, 223)"></div>
+          <div
+            class="pcr-palette"
+            tabindex="0"
+            aria-label="color selection area"
+            role="listbox"
+            style="background: linear-gradient(to top, rgb(0, 0, 0), transparent), linear-gradient(to left, rgb(81, 0, 255), rgb(255, 255, 255))"></div>
+        </div>
+
+        <div class="pcr-color-chooser">
+          <div class="pcr-picker" style="left: calc(71.9298% - 9px); background-color: rgb(81, 0, 255)"></div>
+          <div class="pcr-hue pcr-slider" tabindex="0" aria-label="hue selection slider" role="slider"></div>
+        </div>
+
+        <div class="pcr-color-opacity" style="display: none" hidden="">
+          <div class="pcr-picker"></div>
+          <div class="pcr-opacity pcr-slider" tabindex="0" aria-label="selection slider" role="slider"></div>
+        </div>
+      </div>
+
+      <div class="pcr-swatches"></div>
+
+      <div class="pcr-interaction">
+        <input class="pcr-result" type="text" spellcheck="false" aria-label="color input field" />
+
+        <input class="pcr-type" data-type="HEXA" value="HEXA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type active" data-type="RGBA" value="RGBA" type="button" />
+        <input class="pcr-type" data-type="HSLA" value="HSLA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type" data-type="HSVA" value="HSVA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type" data-type="CMYK" value="CMYK" type="button" style="display: none" hidden="" />
+
+        <input class="pcr-save" value="Save" type="button" style="display: none" hidden="" aria-label="save and close" />
+        <input class="pcr-cancel" value="Cancel" type="button" style="display: none" hidden="" aria-label="cancel and close" />
+        <input class="pcr-clear" value="Clear" type="button" style="display: none" hidden="" aria-label="clear and close" />
+      </div>
+    </div>
+    <div class="pcr-app" data-theme="nano" aria-label="color picker dialog" role="window" style="left: 0px; top: 8px">
+      <div class="pcr-selection">
+        <div class="pcr-color-preview">
+          <button type="button" class="pcr-last-color" aria-label="use previous color" style="--pcr-color: rgba(132, 90, 223, 1)"></button>
+          <div class="pcr-current-color" style="--pcr-color: rgba(132, 90, 223, 1)"></div>
+        </div>
+
+        <div class="pcr-color-palette">
+          <div class="pcr-picker" style="left: calc(59.6413% - 9px); top: calc(12.549% - 9px); background: rgb(132, 90, 223)"></div>
+          <div
+            class="pcr-palette"
+            tabindex="0"
+            aria-label="color selection area"
+            role="listbox"
+            style="background: linear-gradient(to top, rgb(0, 0, 0), transparent), linear-gradient(to left, rgb(81, 0, 255), rgb(255, 255, 255))"></div>
+        </div>
+
+        <div class="pcr-color-chooser">
+          <div class="pcr-picker" style="left: calc(71.9298% - 9px); background-color: rgb(81, 0, 255)"></div>
+          <div class="pcr-hue pcr-slider" tabindex="0" aria-label="hue selection slider" role="slider"></div>
+        </div>
+
+        <div class="pcr-color-opacity" style="display: none" hidden="">
+          <div class="pcr-picker"></div>
+          <div class="pcr-opacity pcr-slider" tabindex="0" aria-label="selection slider" role="slider"></div>
+        </div>
+      </div>
+
+      <div class="pcr-swatches"></div>
+
+      <div class="pcr-interaction">
+        <input class="pcr-result" type="text" spellcheck="false" aria-label="color input field" />
+
+        <input class="pcr-type" data-type="HEXA" value="HEXA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type active" data-type="RGBA" value="RGBA" type="button" />
+        <input class="pcr-type" data-type="HSLA" value="HSLA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type" data-type="HSVA" value="HSVA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type" data-type="CMYK" value="CMYK" type="button" style="display: none" hidden="" />
+
+        <input class="pcr-save" value="Save" type="button" style="display: none" hidden="" aria-label="save and close" />
+        <input class="pcr-cancel" value="Cancel" type="button" style="display: none" hidden="" aria-label="cancel and close" />
+        <input class="pcr-clear" value="Clear" type="button" style="display: none" hidden="" aria-label="clear and close" />
+      </div>
+    </div>
+    <div class="pcr-app" data-theme="nano" aria-label="color picker dialog" role="window" style="left: 0px; top: 8px">
+      <div class="pcr-selection">
+        <div class="pcr-color-preview">
+          <button type="button" class="pcr-last-color" aria-label="use previous color" style="--pcr-color: rgba(132, 90, 223, 1)"></button>
+          <div class="pcr-current-color" style="--pcr-color: rgba(132, 90, 223, 1)"></div>
+        </div>
+
+        <div class="pcr-color-palette">
+          <div class="pcr-picker" style="left: calc(59.6413% - 9px); top: calc(12.549% - 9px); background: rgb(132, 90, 223)"></div>
+          <div
+            class="pcr-palette"
+            tabindex="0"
+            aria-label="color selection area"
+            role="listbox"
+            style="background: linear-gradient(to top, rgb(0, 0, 0), transparent), linear-gradient(to left, rgb(81, 0, 255), rgb(255, 255, 255))"></div>
+        </div>
+
+        <div class="pcr-color-chooser">
+          <div class="pcr-picker" style="left: calc(71.9298% - 9px); background-color: rgb(81, 0, 255)"></div>
+          <div class="pcr-hue pcr-slider" tabindex="0" aria-label="hue selection slider" role="slider"></div>
+        </div>
+
+        <div class="pcr-color-opacity" style="display: none" hidden="">
+          <div class="pcr-picker"></div>
+          <div class="pcr-opacity pcr-slider" tabindex="0" aria-label="selection slider" role="slider"></div>
+        </div>
+      </div>
+
+      <div class="pcr-swatches"></div>
+
+      <div class="pcr-interaction">
+        <input class="pcr-result" type="text" spellcheck="false" aria-label="color input field" />
+
+        <input class="pcr-type" data-type="HEXA" value="HEXA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type active" data-type="RGBA" value="RGBA" type="button" />
+        <input class="pcr-type" data-type="HSLA" value="HSLA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type" data-type="HSVA" value="HSVA" type="button" style="display: none" hidden="" />
+        <input class="pcr-type" data-type="CMYK" value="CMYK" type="button" style="display: none" hidden="" />
+
+        <input class="pcr-save" value="Save" type="button" style="display: none" hidden="" aria-label="save and close" />
+        <input class="pcr-cancel" value="Cancel" type="button" style="display: none" hidden="" aria-label="cancel and close" />
+        <input class="pcr-clear" value="Clear" type="button" style="display: none" hidden="" aria-label="clear and close" />
+      </div>
+    </div>
+
+    <svg
+      id="SvgjsSvg1001"
+      width="2"
+      height="0"
+      xmlns="http://www.w3.org/2000/svg"
+      version="1.1"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:svgjs="http://svgjs.dev"
+      style="overflow: hidden; top: -100%; left: -100%; position: absolute; opacity: 0">
+      <defs id="SvgjsDefs1002"></defs>
+      <polyline id="SvgjsPolyline1003" points="0,0"></polyline>
+      <path id="SvgjsPath1004" d="M0 0 "></path>
+    </svg>
+
+    <script>
+      const ModalJS = (keyword, url, uuid) => {
+        var modal = document.querySelector("#modify-keyword"); // 모달창안에 innerHTML 객체 저장
+
+        modal.querySelector("#signin-keyword").value = keyword;
+        modal.querySelector("#signin-url").value = url;
+        modal.querySelector("#signin-uuid").value = uuid;
+      };
+    </script>
+
+    <script>
+      let save_bt = document.querySelector("#save-bt");
+
+      save_bt.addEventListener("click", (e) => {
+        var modal = document.querySelector("#modify-keyword"); // 모달창안에 innerHTML 객체 저장
+        var signin_keyword = modal.querySelector("#signin-keyword").value;
+        var signin_url = modal.querySelector("#signin-url").value;
+        var signin_uuid = modal.querySelector("#signin-uuid").value;
+
+        Swal.fire({
+          title: "요청하신 내용으로 수정 하시겠습니까?",
+          html: `<br/><br/><b>키워드 : ${signin_keyword}<br/><br/><br/>상품주소 : ${signin_url}<br/><br/><br/>UUID : ${signin_uuid}</b>`,
+          icon: "warning",
+
+          showCancelButton: true, // cancel버튼 보이기. 기본은 원래 없음
+          confirmButtonColor: "#3085d6", // confrim 버튼 색깔 지정
+          cancelButtonColor: "#d33", // cancel 버튼 색깔 지정
+          confirmButtonText: "확인", // confirm 버튼 텍스트 지정
+          cancelButtonText: "취소", // cancel 버튼 텍스트 지정
+
+          reverseButtons: false, // 버튼 순서 거꾸로
+        }).then((result) => {
+          if (result.isConfirmed) {
+            $.ajax({
+              url: "{% url 'slot_edit_api' %}",
+              type: "POST",
+              data: $("#edit_keyword").serialize(),
+              success: (data) => {
+                if (data.msg.includes("완료")) {
+                  Swal.fire("수정완료", "수정 완료되었습니다.", "success");
+                } else {
+                  Swal.fire("수정실패", "수정 실패 했습니다<br/>해당 메세지가 반복된다면 고객센터로 문의주세요", "error");
+                }
+              },
+
+              error: (data) => {
+                Swal.fire("수정실패", "수정 실패 했습니다<br/>해당 메세지가 반복된다면 고객센터로 문의주세요", "error");
+              },
+            });
+          }
+        });
+      });
+    </script>
+
+    <script>
+      let AddKeyword = async (uuid) => {
+        axios({
+          url: "{% url 'slot_date_add_check' %}",
+          method: "post",
+          data: {
+            uuid: uuid,
+          },
+        }).then((res) => {
+          var end_date = new Date(res.data.end_date);
+
+          Swal.fire({
+            title: "해당 키워드를 연장(+30일) 하시겠습니까?",
+            html:
+              `<br/><br/><b>연장 요청하신 키워드 종료일은<br/>${end_date.getFullYear()}년${end_date.getMonth() + 1}월${end_date.getDate()}일 ` +
+              `${end_date.getHours()}:${end_date.getMinutes()}:${end_date.getSeconds()} 입니다`,
+            icon: "question",
+
+            showCancelButton: true, // cancel버튼 보이기. 기본은 원래 없음
+            confirmButtonColor: "#3085d6", // confrim 버튼 색깔 지정
+            cancelButtonColor: "#d33", // cancel 버튼 색깔 지정
+            confirmButtonText: "확인", // confirm 버튼 텍스트 지정
+            cancelButtonText: "취소", // cancel 버튼 텍스트 지정
+            reverseButtons: false, // 버튼 순서 거꾸로
+          }).then((result) => {
+            if (result.isConfirmed) {
+              axios({
+                url: "{% url 'slot_date_add_confirm' %}",
+                method: "post",
+                data: {
+                  uuid: uuid,
+                },
+              }).then((res) => {
+                if (res.data.status) {
+                  Swal.fire("연장완료", "키워드 연장(+30일) 완료되었습니다.", "success");
+                } else {
+                  Swal.fire("연장실패", `${res.data.msg}`, "error");
+                }
+              });
+            } else {
+              Swal.fire("연장취소", "키워드연장을 취소 하셨습니다.", "error");
+            }
+          });
+        });
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,181 @@
+{% include "partials/mainhead.html"  %}
+{% load static %}
+{% load humanize %}
+{% comment %} <script src="{% static "/assets/css/table.css" %}"></script> {% endcomment %}
+
+
+<style>
+
+    body {
+        font-family: 'lato', sans-serif;
+    }
+    
+    .table-container {
+        width : 100%;
+        max-width: 1600px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .table-h2 {
+        font-size: 26px;
+        margin: 20px 0;
+        text-align: center;
+    }
+    
+    h2 small {
+        font-size: 0.5em;
+    }
+    
+    .responsive-table li {
+        border-radius: 3px;
+        padding: 25px 30px;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 25px;
+    }
+    
+    .responsive-table .table-header {
+        background-color: #000000;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #ffffff;
+    }
+    
+    .responsive-table .table-row {
+        background-color: #ffffff;
+        box-shadow: 0px 0px 9px 0px rgba(0, 0, 0, 0.1);
+    }
+    
+    .responsive-table .table-col-1 {
+        flex-basis: 10%;
+    }
+    
+    .responsive-table .table-col-2 {
+        flex-basis: 40%;
+    }
+    
+    .responsive-table .table-col-3 {
+        flex-basis: 25%;
+    }
+    
+    .responsive-table .table-col-4 {
+        flex-basis: 25%;
+    }
+    
+    
+    
+    
+    
+    @media all and (max-width: 767px) {
+        .responsive-table .table-header {
+            display: none;
+        }
+    
+        .responsive-table li {
+            display: block;
+        }
+    
+        .responsive-table .table-col {
+            flex-basis: 100%;
+        }
+    
+        .responsive-table .table-col {
+            display: flex;
+            padding: 10px 0;
+        }
+    
+        .responsive-table .table-col:before {
+            color: #6C7A89;
+            padding-right: 10px;
+            content: attr(data-label);
+            flex-basis: 50%;
+            text-align: right;
+        }
+    }
+
+</style>
+
+
+</head>
+
+<body>
+    {% include "partials/switcher.html"  %}
+
+    <div class="page">
+        {% include "partials/header.html"  %}
+        {% include "partials/sidebar.html"  %}
+
+        <!-- Start::app-content -->
+        <div class="main-content app-content">
+            <div class="container-fluid">
+
+
+                {% include "partials/page-header.html"  %}
+
+                <div class="container">
+
+                    <div class="table-container">
+                        <h2 class="table-h2">Responsive Tables Using LI <small>Triggers on 767px</small></h2>
+                        <ul class="responsive-table">
+                            <li class="table-header">
+                                <div class="table-col table-col-1">아이디</div>
+                                <div class="table-col table-col-1">이름</div>
+                                <div class="table-col table-col-1">전화번호</div>
+                                <div class="table-col table-col-1">대행사</div>
+                                <div class="table-col table-col-1">포인트</div>
+                                <div class="table-col table-col-1">광고목록</div>
+                            </li>
+
+                            {% if data %}
+                                {% for item in data%}
+                                <li class="table-row">
+                                    <div class="table-col table-col-1" data-label="아이디">{{item.username}}</div>
+                                    <div class="table-col table-col-1" data-label="이름">{{item.name}}</div>
+                                    <div class="table-col table-col-1" data-label="전화번호">{{item.phone}}</div>
+                                    {% if item.ageny %}
+                                        <div class="table-col table-col-1" data-label="대행사">{{item.agency}}</div>
+                                    {% else %}
+                                        <div class="table-col table-col-1" data-label="대행사"></div>
+                                    {% endif %}
+                                    <div class="table-col table-col-1" data-label="포인트">{{item.money_point|intcomma}}</div>
+                                    {% comment %} <div class="table-col table-col-1" data-label="바로가기"><a href="{%url 'index'%}" target="_blank">바로가기</a></div> {% endcomment %}
+                                    <div class="table-col table-col-1" data-label="바로가기">
+                                    <button type="button" class="btn btn-success btn-wave waves-effect waves-light">
+                                        광고관리
+                                    </button>
+                                    </div>
+                                </li>
+
+                                {% endfor %}
+
+                            {% endif %}
+
+
+
+                        </ul>
+                    </div>
+                    
+
+                </div>
+
+            </div>
+        </div>
+        <!-- End::app-content -->
+
+        {% include "partials/headersearch_modal.html"  %}
+        {% include "partials/footer.html"  %}
+
+    </div>
+    {% include "partials/commonjs.html"  %}
+    {% include "partials/custom_switcherjs.html"  %}
+
+    <!-- Custom JS -->
+    <script src="{% static "/assets/js/custom.js" %}"></script>
+
+</body>
+
+</html>
